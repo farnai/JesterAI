@@ -1,0 +1,14 @@
+llm:
+  provider: "ollama"
+  model: "llama3.1:8b"
+  base_url: "http://localhost:11434"
+  temperature: 0.75
+  top_p: 0.9
+  num_ctx: 8192
+
+conversation:
+  max_history_messages: 20
+
+server:
+  host: "127.0.0.1"
+  port: 8005

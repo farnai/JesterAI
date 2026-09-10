@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JESTER | The Royal Court Wit</title>
+  <meta name="description" content="A medieval royal court jester chat experience powered by a local LLaMA model.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar / Drawer -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-section">
+        <div class="crest-icon">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>JESTER</h1>
+          <span class="sub-title">Royal Truth-Teller v0.1</span>
+        </div>
+      </div>
+
+      <button id="btn-new-chat" class="btn-new-chat" title="Begin a new royal audience">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>New Audience</span>
+      </button>
+
+      <div class="sidebar-section">
+        <div class="section-title">Engine & Persona</div>
+        <div class="info-card">
+          <div class="info-row">
+            <span class="label">Model:</span>
+            <span class="value badge-gold" id="engine-model">llama3.1:8b</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Status:</span>
+            <span class="value badge-status" id="engine-status">
+              <span class="status-dot"></span>
+              <span id="engine-status-text">Checking...</span>
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="label">Role:</span>
+            <span class="value text-muted">Royal Court Wit</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section prompts-section">
+        <div class="section-title">Royal Inquiries</div>
+        <div class="preset-prompts">
+          <button class="preset-btn" data-prompt="ვინ ხარ და რა უფლებით მესაუბრები ასე?">
+            "ვინ ხარ და რა უფლებით..."
+          </button>
+          <button class="preset-btn" data-prompt="გადავწყვიტე, ჩემი მონაცემთა ბაზა Excel-ში გადავიტანო.">
+            "მონაცემთა ბაზა Excel-ში..."
+          </button>
+          <button class="preset-btn" data-prompt="Explain how binary search works in simple terms.">
+            "How binary search works..."
+          </button>
+          <button class="preset-btn" data-prompt="დღეს მძიმე დღე მქონდა და სასახლეში ყველა მატყუებს.">
+            "დღეს მძიმე დღე მქონდა..."
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="session-box">
+          <span class="session-label">Audience ID:</span>
+          <code class="session-id" id="session-id-display">--------</code>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Chat Workspace -->
+    <main class="chat-main">
+      <!-- Top Navigation Bar -->
+      <header class="chat-header">
+        <div class="header-left">
+          <button id="toggle-sidebar" class="icon-btn" aria-label="Toggle Sidebar">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <div class="court-title">
+            <h2>The Throne Chamber</h2>
+            <p>Speak freely, Sovereign. Truth wears no velvet glove here.</p>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="connection-pill" id="header-conn-pill">
+            <span class="status-indicator"></span>
+            <span class="conn-text" id="header-conn-text">LLaMA 3.1 Ready</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Message Stream Container -->
+      <div class="messages-viewport" id="messages-viewport">
+        <div class="welcome-banner" id="welcome-banner">
+          <div class="jester-emblem">🃏</div>
+          <h3>The Royal Court Wit awaits your decree.</h3>
+          <p>
+            I am your jester—the only soul in this gilded fortress licensed to speak the unvarnished truth.
+            Consult me on matters of code, philosophy, empire, or madness. Just do not expect flattery.
+          </p>
+        </div>
+        <div class="messages-container" id="messages-container"></div>
+        <div class="typing-indicator" id="typing-indicator" style="display: none;">
+          <div class="jester-avatar">🃏</div>
+          <div class="bubble-typing">
+            <span class="jester-name">JESTER is concocting a retort</span>
+            <div class="dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Composer Input Box -->
+      <footer class="chat-footer">
+        <form class="chat-input-form" id="chat-form">
+          <div class="input-wrapper">
+            <textarea
+              id="user-input"
+              class="chat-textarea"
+              placeholder="Address the jester (e.g. ask a technical question, propose an idea, or banter)..."
+              rows="1"
+              autofocus
+            ></textarea>
+            <button type="submit" id="send-btn" class="send-btn" aria-label="Send message" disabled>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
+          <div class="input-hint">
+            <span><strong>Enter</strong> to send, <strong>Shift + Enter</strong> for a new line.</span>
+            <span class="hint-right">Zero stage directions. Pure linguistic wit.</span>
+          </div>
+        </form>
+      </footer>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
