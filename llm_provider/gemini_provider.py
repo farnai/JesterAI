@@ -30,7 +30,11 @@ class GeminiProvider(LLMProvider):
         base_url: str = "https://generativelanguage.googleapis.com/v1beta",
     ):
         self.api_key = api_key
-        self.model = model
+        # Clean model name if passed with 'models/' prefix and ensure valid cloud model fallback
+        cleaned_model = model.strip().removeprefix("models/") if model else ""
+        if not cleaned_model or "qwen" in cleaned_model.lower() or "llama" in cleaned_model.lower():
+            cleaned_model = "gemini-1.5-flash"
+        self.model = cleaned_model
         self.temperature = temperature
         self.top_p = top_p
         self.timeout = timeout_seconds
@@ -136,6 +140,15 @@ class GeminiProvider(LLMProvider):
 
         latency_ms = (time.perf_counter() - start_time) * 1000
 
+        # Check if prompt was blocked by upstream safety filters
+        prompt_feedback = data.get("promptFeedback", {})
+        block_reason = prompt_feedback.get("blockReason")
+        if block_reason:
+            raise LLMProviderError(
+                f"Gemini prompt blocked by provider safety filter (blockReason: {block_reason})",
+                provider=self.provider_name,
+            )
+
         # Extract generated content from Gemini response candidates
         candidates = data.get("candidates", [])
         if not candidates:
@@ -144,8 +157,16 @@ class GeminiProvider(LLMProvider):
                 provider=self.provider_name,
             )
 
-        content_parts = candidates[0].get("content", {}).get("parts", [])
+        candidate = candidates[0]
+        finish_reason = candidate.get("finishReason", "")
+        content_parts = candidate.get("content", {}).get("parts", [])
         content = "".join(part.get("text", "") for part in content_parts)
+
+        if not content and finish_reason in ("SAFETY", "RECITATION", "BLOCKLIST", "PROHIBITED_CONTENT"):
+            raise LLMProviderError(
+                f"Gemini content generation blocked by provider safety filter (finishReason: {finish_reason})",
+                provider=self.provider_name,
+            )
 
         # Extract token usage from usageMetadata
         usage_meta = data.get("usageMetadata", {})

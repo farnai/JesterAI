@@ -2,10 +2,15 @@ import re
 from typing import List
 
 DEFAULT_PATTERNS = [
-    # Asterisk stage directions: *laughs*, *sighs*, *იცინის*, *rolls eyes*, etc.
-    r"\*[^\*\n]{1,80}\*",
-    # Parenthetical stage directions commonly produced: (laughs), (იცინის), (თავს ხრის), etc.
-    r"\((?:იცინის|ეჟვნები|იღიმის|ხრის|იცინოდა|ამოიოხრა|თავს|laughs|chuckles|sighs|bows|rolls eyes|smiles|winks|grins|pauses|giggles)[^)]*\)",
+    # Compound and nested: *(იცინის)*, (*თავს ხრის*), etc.
+    r"\*\([^\)\n]{1,80}\)\*",
+    r"\(\*[^\*\n]{1,80}\*\)",
+    # Single-asterisk stage directions (never match markdown double-asterisk bold **word**)
+    r"(?<!\*)\*(?!\*)[^\*\n]{1,80}(?<!\*)\*(?!\*)",
+    # Parenthetical stage directions: (laughs), (იცინის), (თავს ხრის), (ოხრავს), etc.
+    r"\((?:იცინის|ეჟვნები|იღიმის|ხრის|იცინოდა|ამოიოხრა|ოხრავს|თავს|laughs|chuckles|sighs|bows|rolls eyes|smiles|winks|grins|pauses|giggles)[^)]*\)",
+    # Bracketed stage directions: [იცინის], [თავს ხრის], [rolls eyes], etc.
+    r"\[(?:იცინის|ეჟვნები|იღიმის|ხრის|იცინოდა|ამოიოხრა|ოხრავს|თავს|laughs|chuckles|sighs|bows|rolls eyes|smiles|winks|grins|pauses|giggles)[^\]]*\]",
 ]
 
 

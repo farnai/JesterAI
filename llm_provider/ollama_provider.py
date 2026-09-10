@@ -1,5 +1,5 @@
 import time
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 import httpx
 
 from .base import LLMProvider, LLMRequest, LLMResponse, LLMTokenUsage, ProviderMetadata
@@ -19,15 +19,17 @@ class OllamaProvider(LLMProvider):
         self,
         base_url: str = "http://localhost:11434",
         model: str = "qwen3.6:latest",
-        temperature: float = 0.75,
+        temperature: float = 0.85,
         top_p: float = 0.9,
+        frequency_penalty: Optional[float] = 0.35,
         num_ctx: int = 8192,
-        timeout_seconds: float = 120.0,
+        timeout_seconds: float = 240.0,
     ):
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.temperature = temperature
         self.top_p = top_p
+        self.frequency_penalty = frequency_penalty
         self.num_ctx = num_ctx
         self.timeout = timeout_seconds
 
@@ -42,11 +44,13 @@ class OllamaProvider(LLMProvider):
     async def chat(self, request: LLMRequest) -> LLMResponse:
         url = f"{self.base_url}/api/chat"
 
-        opts = {
+        opts: Dict[str, Any] = {
             "temperature": request.temperature if request.temperature is not None else self.temperature,
             "top_p": request.top_p if request.top_p is not None else self.top_p,
             "num_ctx": self.num_ctx,
         }
+        if self.frequency_penalty is not None:
+            opts["frequency_penalty"] = self.frequency_penalty
         if request.extra_options:
             opts.update(request.extra_options)
 

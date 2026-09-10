@@ -18,8 +18,9 @@ def get_llm_provider(settings: Any) -> LLMProvider:
             model=settings.llm.model,
             temperature=settings.llm.temperature,
             top_p=settings.llm.top_p,
+            frequency_penalty=getattr(settings.llm, "frequency_penalty", 0.35),
             num_ctx=getattr(settings.llm, "num_ctx", 8192),
-            timeout_seconds=getattr(settings.llm, "timeout_seconds", 120.0),
+            timeout_seconds=getattr(settings.llm, "timeout_seconds", 240.0),
         )
     elif provider_type == "gemini":
         return GeminiProvider(

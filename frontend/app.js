@@ -68,8 +68,7 @@
           engineModel.textContent = data.model;
         }
         if (data.status === "healthy") {
-          const prov = data.provider ? data.provider.toUpperCase() : "AI";
-          setHealthStatus(true, `${prov}: ${data.model} Ready`);
+          setHealthStatus(true, `AI: ${data.model} Ready`);
         } else {
           setHealthStatus(false, data.provider_details?.error || "Degraded");
         }

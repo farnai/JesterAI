@@ -13,8 +13,9 @@ class LLMConfig(BaseModel):
     model: str = "qwen3.6:latest"
     base_url: str = "http://localhost:11434"
     api_key: str = ""
-    temperature: float = 0.75
+    temperature: float = 0.85
     top_p: float = 0.9
+    frequency_penalty: float = 0.35
     num_ctx: int = 8192
     timeout_seconds: float = 240.0
 
@@ -70,7 +71,9 @@ def load_settings() -> AppSettings:
     server_data = raw_data.get("server", {})
 
     # Environment variable overrides
-    if "JESTER_LLM_PROVIDER" in os.environ:
+    if "JESTER_PROVIDER" in os.environ:
+        llm_data["provider"] = os.environ["JESTER_PROVIDER"]
+    elif "JESTER_LLM_PROVIDER" in os.environ:
         llm_data["provider"] = os.environ["JESTER_LLM_PROVIDER"]
     if "JESTER_MODEL" in os.environ:
         llm_data["model"] = os.environ["JESTER_MODEL"]
@@ -78,6 +81,8 @@ def load_settings() -> AppSettings:
         llm_data["base_url"] = os.environ["OLLAMA_BASE_URL"]
     if "GEMINI_API_KEY" in os.environ:
         llm_data["api_key"] = os.environ["GEMINI_API_KEY"]
+    elif "JESTER_GEMINI_API_KEY" in os.environ:
+        llm_data["api_key"] = os.environ["JESTER_GEMINI_API_KEY"]
     if "OPENAI_API_KEY" in os.environ:
         llm_data["api_key"] = os.environ["OPENAI_API_KEY"]
     if "JESTER_API_KEY" in os.environ:
@@ -86,6 +91,10 @@ def load_settings() -> AppSettings:
         security_data["require_auth"] = os.environ["JESTER_REQUIRE_AUTH"].lower() in ("true", "1", "yes")
     if "JESTER_TEMPERATURE" in os.environ:
         llm_data["temperature"] = float(os.environ["JESTER_TEMPERATURE"])
+    if "JESTER_TOP_P" in os.environ:
+        llm_data["top_p"] = float(os.environ["JESTER_TOP_P"])
+    if "JESTER_FREQUENCY_PENALTY" in os.environ:
+        llm_data["frequency_penalty"] = float(os.environ["JESTER_FREQUENCY_PENALTY"])
     if "JESTER_ENFORCE_QUOTA" in os.environ:
         quota_data["enforce_quota"] = os.environ["JESTER_ENFORCE_QUOTA"].lower() in ("true", "1", "yes")
     if "JESTER_PORT" in os.environ:

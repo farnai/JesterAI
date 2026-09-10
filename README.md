@@ -1,6 +1,6 @@
 # JESTER (v0.1)
 
-**JESTER** is a standalone, local AI chat application powered by a local LLaMA model running via Ollama. It breathes life into the archetype of the medieval royal court jester: razor-sharp, sarcastic, intellectually rigorous, and granted total license to speak the unvarnished truth to the throne.
+**JESTER** is a standalone, local AI chat application powered by a local LLM model (such as Qwen) running via Ollama. It breathes life into the archetype of the medieval royal court jester: razor-sharp, sarcastic, intellectually rigorous, and granted total license to speak the unvarnished truth to the throne.
 
 ---
 
@@ -40,7 +40,7 @@ JESTER is built with strict decoupling across 7 distinct tiers:
 
 ### Prerequisites
 1. Ensure Ollama is running (`ollama serve` or Ollama desktop app).
-2. Verify that `llama3.1:8b` is installed:
+2. Verify that `qwen3.6:latest` is installed:
    ```bash
    ollama list
    ```
@@ -94,7 +94,7 @@ Content-Type: application/json
 {
   "conversation_id": "optional-uuid-string",
   "response": "The JESTER retort or technical answer...",
-  "model": "llama3.1:8b"
+  "model": "qwen3.6:latest"
 }
 ```
 
