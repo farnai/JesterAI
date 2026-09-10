@@ -11,15 +11,17 @@ from config import settings
 
 
 def main():
-    print("=" * 60)
-    print("  [*] JESTER - STANDALONE ROYAL COURT CHAT (v0.1) [*]")
-    print("=" * 60)
-    print(f"  Model        : {settings.llm.model}")
-    print(f"  Ollama Host  : {settings.llm.base_url}")
-    print(f"  Web UI       : http://{settings.server.host}:{settings.server.port}")
-    print(f"  API Docs     : http://{settings.server.host}:{settings.server.port}/docs")
-    print("=" * 60)
-    print("Starting server... Press Ctrl+C to stop.\n")
+    print("=" * 65)
+    print("  [*] JESTER - STANDALONE ROYAL COURT AI SERVICE (v0.2) [*]")
+    print("=" * 65)
+    print(f"  Provider       : {settings.llm.provider.upper()}")
+    print(f"  Model          : {settings.llm.model}")
+    print(f"  Provider Host  : {settings.llm.base_url}")
+    print(f"  Free Quota     : {settings.quota.free_questions_limit} questions")
+    print(f"  Web UI         : http://{settings.server.host}:{settings.server.port}")
+    print(f"  API Docs       : http://{settings.server.host}:{settings.server.port}/docs")
+    print("=" * 65)
+    print("Starting service... Press Ctrl+C to stop.\n")
 
     uvicorn.run(
         "backend.app:app",

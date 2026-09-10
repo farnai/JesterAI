@@ -1,13 +1,23 @@
 llm:
   provider: "ollama"
-  model: "llama3.1:8b"
+  model: "qwen3.6:latest"
   base_url: "http://localhost:11434"
+  api_key: ""
   temperature: 0.75
   top_p: 0.9
   num_ctx: 8192
+  timeout_seconds: 240.0
+
+quota:
+  free_questions_limit: 3
+  enforce_quota: true
 
 conversation:
   max_history_messages: 20
+
+security:
+  api_key: ""
+  require_auth: false
 
 server:
   host: "127.0.0.1"

@@ -5,6 +5,7 @@
 (() => {
   // State
   let conversationId = getOrCreateSessionId();
+  let userId = getOrCreateUserId();
   let isThinking = false;
 
   // DOM Elements
@@ -34,6 +35,15 @@
     autoResizeTextarea();
   }
 
+  function getOrCreateUserId() {
+    let id = localStorage.getItem("jester_user_id");
+    if (!id) {
+      id = "usr_sovereign_" + Math.random().toString(36).substring(2, 8);
+      localStorage.setItem("jester_user_id", id);
+    }
+    return id;
+  }
+
   function getOrCreateSessionId() {
     let id = sessionStorage.getItem("jester_conversation_id");
     if (!id) {
@@ -58,9 +68,10 @@
           engineModel.textContent = data.model;
         }
         if (data.status === "healthy") {
-          setHealthStatus(true, `${data.model} Ready`);
+          const prov = data.provider ? data.provider.toUpperCase() : "AI";
+          setHealthStatus(true, `${prov}: ${data.model} Ready`);
         } else {
-          setHealthStatus(false, data.ollama?.error || "Degraded");
+          setHealthStatus(false, data.provider_details?.error || "Degraded");
         }
       } else {
         setHealthStatus(false, "API Offline");
@@ -151,14 +162,22 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          user_id: userId,
           conversation_id: conversationId,
           message: text,
         }),
       });
 
+      if (response.status === 402) {
+        const paywallData = await response.json().catch(() => ({}));
+        const msg = paywallData.message || "თქვენ ამოწურეთ 3 უფასო შეკითხვა. მასხარასთან საუბრის გასაგრძელებლად საჭიროა წვდომის განახლება.";
+        appendMessage("assistant", `👑 **[სასახლის კარი დაიკეტა]** ${msg}`);
+        return;
+      }
+
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        const errMsg = errData.detail || `Server error (${response.status})`;
+        const errMsg = errData.detail?.message || errData.detail || `Server error (${response.status})`;
         appendMessage("assistant", `The court bells ring with alarm: ${errMsg}`);
         return;
       }
